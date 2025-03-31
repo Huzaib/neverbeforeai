@@ -228,14 +228,14 @@ nav {
     z-index: 0;
 }
 
-/* Services Section */
-#services {
+/* Techniques Section */
+#techniques {
     background-color: var(--background-color);
     padding: 80px 20px;
     text-align: center;
 }
 
-#services h2 {
+#techniques h2 {
     margin-bottom: 40px;
     font-size: 2.5rem;
     color: var(--text-color);
@@ -245,7 +245,7 @@ nav {
     color: transparent;
 }
 
-.services-grid {
+.techniques-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 30px;
@@ -253,7 +253,7 @@ nav {
     margin: 0 auto;
 }
 
-.service-card {
+.technique-card {
     background-color: var(--card-background);
     padding: 40px 20px;
     border-radius: 15px;
@@ -266,30 +266,30 @@ nav {
     z-index: 5;
 }
 
-.service-card:hover {
+.technique-card:hover {
     transform: translateY(-10px);
     box-shadow: 0 20px 40px rgba(0, 245, 255, 0.1);
     border-color: var(--primary-color);
 }
 
-.service-card i {
+.technique-card i {
     font-size: 3rem;
     color: var(--primary-color);
     margin-bottom: 20px;
 }
 
-.service-card h3 {
+.technique-card h3 {
     margin-bottom: 15px;
 }
 
-.service-card a {
+.technique-card a {
     margin-top: 15px;
     color: var(--primary-color);
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
-.service-card a:hover {
+.technique-card a:hover {
     color: var(--secondary-color);
 }
 
@@ -447,7 +447,7 @@ footer .logo img {
 
 /* Responsive Adjustments */
 @media (max-width: 1024px) {
-    .services-grid {
+    .techniques-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 
@@ -457,7 +457,7 @@ footer .logo img {
 }
 
 @media (max-width: 768px) {
-    .services-grid {
+    .techniques-grid {
         grid-template-columns: 1fr;
     }
 
