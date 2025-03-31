@@ -3,37 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Video Showcase</title>
+    <title>NeverBeforeAI - Innovative Digital Solutions</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script type="text/javascript"
+    src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+    <script type="text/javascript">
+    emailjs.init('Y3Hp7aP1JQiUceE6z')
+    </script>
 </head>
 <body>
-    <div id="carousel">
-        <div class="carousel--cards">
-            <div class="carousel--card carousel--card-0" data-card-id="0">
-                <video poster="resources/jeans_girl.jpg" src="resources/jeans_girl.mp4" class="videosCarrousel" muted loop playsinline></video>
+    <header>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#video-showcase">Showcase</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="hero">
+            <div class="hero-content">
+                <h1>Transforming Ideas into Digital Realities</h1>
+                <p>Innovative AI Solutions for Creative Content</p>
+                <div class="hero-cta-container">
+                    <a href="#services" class="cta-button">Explore Our Services</a>
+                </div>
             </div>
-            <div class="carousel--card carousel--card-1" data-card-id="1">
-                <video poster="resources/rain_song.jpg" src="resources/rain_song.mp4" class="videosCarrousel" muted loop playsinline></video>
+        </section>
+
+        <section id="video-showcase">
+            <div class="creative-showcase">
+                <h2 class="section-title">Our Creative Showcase</h2>
             </div>
-            <div class="carousel--card carousel--card-2" data-card-id="2">
-                <video poster="resources/green_goddess_moodboard.jpg" src="resources/green_goddess_moodboard.mp4" class="videosCarrousel" muted loop playsinline></video>
+            <div id="carousel">
+                <div class="carousel--cards">
+                    <div class="carousel--card carousel--card-0" data-card-id="0">
+                        <video poster="resources/jeans_girl.jpg" src="resources/jeans_girl.mp4" class="videosCarrousel" muted loop playsinline></video>
+                    </div>
+                    <div class="carousel--card carousel--card-1" data-card-id="1">
+                        <video poster="resources/rain_song.jpg" src="resources/rain_song.mp4" class="videosCarrousel" muted loop playsinline></video>
+                    </div>
+                    <div class="carousel--card carousel--card-2" data-card-id="2">
+                        <video poster="resources/green_goddess_moodboard.jpg" src="resources/green_goddess_moodboard.mp4" class="videosCarrousel" muted loop playsinline></video>
+                    </div>
+                    <div class="carousel--card carousel--card-3" data-card-id="3">
+                        <video poster="resources/kurtis.jpg" src="resources/kurtis.mp4" class="videosCarrousel" muted loop playsinline></video>
+                    </div>
+                    <div class="carousel--card carousel--card-4" data-card-id="4">
+                        <video poster="resources/earrings.jpg" src="resources/earrings.mp4" class="videosCarrousel" muted loop playsinline></video>
+                    </div>
+                    <div class="carousel--card carousel--card-5" data-card-id="5">
+                        <video poster="resources/red_dress_girl.jpg" src="resources/red_dress_girl.mp4" class="videosCarrousel" muted loop playsinline></video>
+                    </div>
+                    <div class="carousel--card carousel--card-6" data-card-id="6">
+                        <video poster="resources/pride_month_celebration.jpg" src="resources/pride_month_celebration.mp4" class="videosCarrousel" muted loop playsinline></video>
+                    </div>
+                </div>
             </div>
-            
-            <div class="carousel--card carousel--card-3" data-card-id="3">
-                <video poster="resources/kurtis.jpg" src="resources/kurtis.mp4" class="videosCarrousel" muted loop playsinline></video>
+        </section>
+
+        <section id="services">
+            <h2>Our Services</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <i class="ri-movie-line"></i>
+                    <h3>AI Video Generation</h3>
+                    <p>Create stunning, unique videos using advanced AI technology</p>
+                </div>
+                <div class="service-card">
+                    <i class="ri-image-line"></i>
+                    <h3>AI Product Photography</h3>
+                    <p>Generate high-quality, consistent product images instantly</p>
+                </div>
+                <div class="service-card">
+                    <i class="ri-magic-line"></i>
+                    <h3>Creative AI Transformation</h3>
+                    <p>Advanced textual inversion and style transfer techniques</p>
+                </div>
             </div>
-            <div class="carousel--card carousel--card-4" data-card-id="4">
-                <video poster="resources/earrings.jpg" src="resources/earrings.mp4" class="videosCarrousel" muted loop playsinline></video>
+        </section>        
+        <section id="about-contact-wrapper">
+            <div class="section-container">
+                <!-- About Section -->
+                <div id="about" class="section-box">
+                    <h2>About NeverBefore AI</h2>
+                    <p>
+                        We are a cutting-edge AI studio specializing in creative content generation. 
+                        Our mission is to leverage artificial intelligence to unlock new possibilities 
+                        in visual storytelling and product presentation.
+                    </p>
+                </div>
+        
+                <!-- Contact Section -->
+                <div id="contact" class="section-box">
+                    <h2>Get in Touch</h2>
+                    <div class="contact-form">
+                        <form id="contact-form">
+                            <input type="text" name="name" placeholder="Your Name" required>
+                            <input type="email" name="email" placeholder="Your Email" required>
+                            <textarea name="message" placeholder="Your Message" required></textarea>
+                            <button type="submit">Send Message</button>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <div class="carousel--card carousel--card-5" data-card-id="5">
-                <video poster="resources/red_dress_girl.jpg" src="resources/red_dress_girl.mp4" class="videosCarrousel" muted loop playsinline></video>
-            </div>
-            <div class="carousel--card carousel--card-6" data-card-id="6">
-                <video poster="resources/pride_month_celebration.jpg" src="resources/pride_month_celebration.mp4" class="videosCarrousel" muted loop playsinline></video>
-            </div>
+        </section>        
+    </main>
+
+    <footer>
+        <div class="logo">
+            <img src="resources/logo.png" alt="NeverBefore AI Logo">
         </div>
-        <!-- Removed navigation buttons -->
-    </div>
+        <div class="social-links">
+            <a href="https://github.com/Huzaib" target="_blank"><i class="ri-github-fill"></i></a>
+            <a href="https://www.linkedin.com/in/huzaib-ul-hassan/" target="_blank"><i class="ri-linkedin-fill"></i></a>
+            <a href="mailto:huzaibulhassan@gmail.com"><i class="ri-mail-fill"></i></a> <!-- Gmail link -->
+        </div>
+        <p>&copy; 2024 NeverBeforeAI. All rights reserved.</p>
+    </footer>
     <script src="script.js"></script>
+
+    
 </body>
 </html>
