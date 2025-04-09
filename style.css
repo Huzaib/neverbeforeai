@@ -13,12 +13,83 @@
     box-sizing: border-box;
 }
 
-body {
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    background-color: #0d1a3d; /* Darker solid background */
     font-family: 'Inter', 'Arial', sans-serif;
-    background-color: var(--background-color);
     color: var(--text-color);
     line-height: 1.6;
-    overflow-x: hidden;
+}
+
+/* Updates for hero section and text block */
+
+/* Hide the star instructions */
+.star-instructions {
+    display: none;
+}
+
+/* Optimize canvas rendering */
+#stars-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    will-change: transform;
+    pointer-events: auto;
+    transform: translateZ(0);
+}
+
+/* Make hero section fully transparent */
+#hero {
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+    background-color: transparent;
+}
+
+/* Add these CSS rules to your style.css file */
+
+/* Make hero content clickable through but keep text visible */
+.hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: transparent; /* Make fully transparent */
+    pointer-events: none; /* Make the content click-through */
+}
+
+/* But ensure buttons and links remain clickable */
+.hero-content a, 
+.hero-content button {
+    pointer-events: auto; /* Make buttons and links clickable */
+}
+
+/* Make CTA button clickable */
+.hero-cta-container {
+    pointer-events: auto; /* Ensure CTA container is clickable */
+}
+
+/* Ensure the CTA button is clickable */
+.cta-button {
+    pointer-events: auto; /* Make sure the button is clickable */
+}
+/* Optimize for mobile performance */
+@media (max-width: 768px) {
+    #stars-canvas {
+        height: 100%;
+        position: absolute;
+    }
+
+    .hero-content h1 {
+        font-size: 2.5rem;
+    }
 }
 
 /* Navigation Styles */
@@ -88,10 +159,21 @@ nav {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, var(--background-color), #0d1a3d);
     color: var(--text-color);
     text-align: center;
     padding: 0 20px;
+    position: relative;
+}
+
+#hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(26, 42, 94, 0.7), rgba(13, 26, 61, 0.7));
+    z-index: -1;
 }
 
 .hero-content {
@@ -152,6 +234,16 @@ nav {
 .cta-button:hover {
     transform: translateY(-5px);
     box-shadow: 0 15px 30px rgba(0, 245, 255, 0.3);
+}
+
+/* Ensure sections have sufficient contrast with stars */
+section {
+    position: relative;
+    z-index: 1;
+    background-color: rgba(26, 42, 94, 0.5);
+    backdrop-filter: blur(5px);
+    margin: 20px 0;
+    border-radius: 10px;
 }
 
 /* Carousel Styling */
@@ -230,7 +322,7 @@ nav {
 
 /* Techniques Section */
 #techniques {
-    background-color: var(--background-color);
+    background-color: rgba(26, 42, 94, 0.5);
     padding: 80px 20px;
     text-align: center;
 }
@@ -316,59 +408,29 @@ nav {
 /* Optional: Adjust content alignment */
 .section-box h2 {
     text-align: center;
+    margin-bottom: 20px;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
 }
 
 .section-box p {
     text-align: justify;
 }
 
-/* Responsive Design: Stack the sections vertically on smaller screens */
-@media (max-width: 768px) {
-    .section-container {
-        flex-direction: column; /* Stack sections vertically */
-    }
-
-    .section-box {
-        margin-bottom: 20px; /* Add space between stacked sections */
-    }
-}
-
 /* About Section */
 #about {
-    background-color: var(--background-color);
-    padding: 80px 20px;
-    text-align: center;
-}
-
-#about h2 {
-    margin-bottom: 30px;
-    font-size: 2.5rem;
-    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-}
-
-.about-content {
-    max-width: 800px;
-    margin: 0 auto;
+    background-color: var(--card-background);
+    padding: 20px;
     text-align: center;
 }
 
 /* Contact Section */
 #contact {
-    background-color: var(--background-color);
-    padding: 80px 20px;
+    background-color: var(--card-background);
+    padding: 20px;
     text-align: center;
-}
-
-#contact h2 {
-    margin-bottom: 40px;
-    font-size: 2.5rem;
-    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
 }
 
 #contact-form {
@@ -413,20 +475,17 @@ footer {
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative;
+    z-index: 1;
 }
 
 footer .logo {
     margin-bottom: 20px;
 }
 
-/* footer .logo img {
-    max-height: 80px;
-    filter: brightness(0) invert(1) sepia(1) hue-rotate(170deg) saturate(500%);
-} */
 footer .logo img {
     filter: brightness(1) invert(0) sepia(0) hue-rotate(170deg) saturate(500%);
 }
-
 
 .social-links {
     display: flex;
@@ -476,6 +535,25 @@ footer .logo img {
 
     #carousel > .carousel--cards {
         width: 70%;
+    }
+    
+    .section-container {
+        flex-direction: column;
+    }
+
+    .section-box {
+        margin-bottom: 20px;
+    }
+    
+    /* Fix for iOS Safari height issues */
+    #stars-canvas {
+        height: 100%;
+        position: fixed;
+    }
+    
+    .star-instructions {
+        font-size: 12px;
+        padding: 8px 12px;
     }
 }
 
