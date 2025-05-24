@@ -1,321 +1,421 @@
-// Enhanced Star Animation with faster random movement and directional changes on click
+// Interactive Constellation Animation
 document.addEventListener('DOMContentLoaded', () => {
     // Target only the hero section
     const heroSection = document.getElementById('hero');
     if (!heroSection) return;
     
-    // Create canvas element for stars
-    const starsCanvas = document.createElement('canvas');
-    starsCanvas.id = 'stars-canvas';
-    
-    // Set canvas size and position
-    starsCanvas.style.position = 'absolute';
-    starsCanvas.style.top = '0';
-    starsCanvas.style.left = '0';
-    starsCanvas.style.width = '100%';
-    starsCanvas.style.height = '100%';
-    starsCanvas.style.zIndex = '0';
-    starsCanvas.style.pointerEvents = 'none'; // Change to 'none' to allow clicks to pass through
+    // Create canvas element
+    const canvas = document.createElement('canvas');
+    canvas.id = 'stars-canvas';
+    canvas.style.position = 'absolute';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.zIndex = '0';
+    canvas.style.pointerEvents = 'none';
     
     // Insert canvas as first child of hero section
-    heroSection.insertBefore(starsCanvas, heroSection.firstChild);
+    heroSection.insertBefore(canvas, heroSection.firstChild);
     
-    // Get canvas context for drawing
-    const ctx = starsCanvas.getContext('2d', { alpha: true });
+    // Get canvas context
+    const ctx = canvas.getContext('2d');
     
-    // Game state
+    // Stars and effects arrays
     let stars = [];
-    let mousePosition = null;
-    let clickEffects = [];
+    let constellationLines = [];
+    let blastWaves = [];
+    let particles = [];
+    let mouseX = 0;
+    let mouseY = 0;
+    let animationId;
     
-    // Remove the star instructions text if it exists
-    const starInstructions = document.querySelector('.star-instructions');
-    if (starInstructions) {
-        starInstructions.style.display = 'none';
+    // Resize canvas
+    function resizeCanvas() {
+        const rect = heroSection.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+        console.log('Canvas resized:', canvas.width, 'x', canvas.height);
+        initStars();
     }
-
-    // Make hero content clickable through to the canvas
-    const heroContent = document.querySelector('.hero-content');
-    if (heroContent) {
-        heroContent.style.pointerEvents = 'none'; // This makes the hero content click-through
+    
+    // Initialize stars
+    function initStars() {
+        stars = [];
+        blastWaves = [];
+        particles = [];
         
-        // But keep buttons and links clickable
-        const clickableElements = heroContent.querySelectorAll('a, button');
-        clickableElements.forEach(element => {
-            element.style.pointerEvents = 'auto';
+        const numberOfStars = Math.min(300, Math.floor(canvas.width * canvas.height / 5000));
+        console.log('Creating', numberOfStars, 'stars');
+        
+        for (let i = 0; i < numberOfStars; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                baseSize: Math.random() * 3.5 + 0.5,
+                size: 0,
+                brightness: Math.random() * 0.6 + 0.4,
+                pulseSpeed: Math.random() * 0.03 + 0.02,
+                pulsePhase: Math.random() * Math.PI * 2,
+                twinkleSpeed: Math.random() * 0.05 + 0.02,
+                twinklePhase: Math.random() * Math.PI * 2,
+                vx: (Math.random() - 0.5) * 0.3,
+                vy: (Math.random() - 0.5) * 0.3,
+                orbitRadius: Math.random() * 30 + 10,
+                orbitSpeed: Math.random() * 0.002 + 0.001,
+                orbitPhase: Math.random() * Math.PI * 2
+            });
+        }
+        console.log('Stars created:', stars.length);
+    }
+    
+    // Find nearby stars for constellation
+    function findNearbyStars(x, y, radius) {
+        return stars.filter(star => {
+            const dx = star.x - x;
+            const dy = star.y - y;
+            return Math.sqrt(dx * dx + dy * dy) < radius;
         });
     }
     
-    // Resize canvas to match hero section
-    function resizeCanvas() {
-        const rect = heroSection.getBoundingClientRect();
-        starsCanvas.width = rect.width;
-        starsCanvas.height = rect.height;
-        createStars();
-    }
-    
-    // Create stars with optimized properties
-    function createStars() {
-        stars = [];
+    // Update constellation lines based on mouse position
+    function updateConstellations() {
+        constellationLines = [];
+        const nearbyStars = findNearbyStars(mouseX, mouseY, 200);
         
-        // Create more stars based on screen size - INCREASED by 2x
-        const maxStars = Math.min(240, Math.floor(starsCanvas.width * starsCanvas.height / 3000));
-        
-        for (let i = 0; i < maxStars; i++) {
-            // Random position
-            const x = Math.random() * starsCanvas.width;
-            const y = Math.random() * starsCanvas.height;
-            
-            // White to blue color palette (theme matching)
-            const blueIntensity = Math.random();
-            const r = Math.floor(220 + blueIntensity * 35); // 220-255 (white to light blue)
-            const g = Math.floor(220 + blueIntensity * 35); // 220-255
-            const b = 255; // Always full blue
-            const a = 0.6 + Math.random() * 0.4; // 0.6-1.0 opacity
-            
-            // Create star with faster initial velocity
-            const star = {
-                x,
-                y,
-                originalX: x,
-                originalY: y,
-                radius: Math.random() * 1.5 + 0.5,
-                baseRadius: Math.random() * 1.5 + 0.5,
-                color: `rgba(${r}, ${g}, ${b}, ${a})`,
-                // Increased initial velocity for faster movement (increased by 2x)
-                vx: (Math.random() - 0.5) * 1.0,
-                vy: (Math.random() - 0.5) * 1.0,
-                returnSpeed: 0.003 + Math.random() * 0.008, // Reduced return speed to allow more wandering
-                twinkleSpeed: 0.003 + Math.random() * 0.005,
-                twinklePhase: Math.random() * Math.PI *
-                 2,
-                directionChangeTimer: Math.random() * 100 // Random timer for direction changes
-            };
-            
-            stars.push(star);
+        // Connect nearby stars to each other
+        for (let i = 0; i < nearbyStars.length; i++) {
+            for (let j = i + 1; j < nearbyStars.length; j++) {
+                const star1 = nearbyStars[i];
+                const star2 = nearbyStars[j];
+                const dx = star2.x - star1.x;
+                const dy = star2.y - star1.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 150) {
+                    const distanceToMouse1 = Math.sqrt((star1.x - mouseX) ** 2 + (star1.y - mouseY) ** 2);
+                    const distanceToMouse2 = Math.sqrt((star2.x - mouseX) ** 2 + (star2.y - mouseY) ** 2);
+                    const averageDistance = (distanceToMouse1 + distanceToMouse2) / 2;
+                    const opacity = Math.max(0, 1 - averageDistance / 200);
+                    
+                    constellationLines.push({
+                        x1: star1.x,
+                        y1: star1.y,
+                        x2: star2.x,
+                        y2: star2.y,
+                        opacity: opacity * 0.5,
+                        brightness: (star1.brightness + star2.brightness) / 2
+                    });
+                }
+            }
         }
     }
     
-    // Draw stars with optimized rendering
-    function drawStars() {
-        // Use a semi-transparent clear for trail effect
-        ctx.fillStyle = 'rgba(13, 26, 61, 0.15)';
-        ctx.fillRect(0, 0, starsCanvas.width, starsCanvas.height);
-        
-        // Draw each star with glow effect
+    // Update stars
+    function update() {
+        // Update star positions with dynamic movement
         stars.forEach(star => {
-            // Apply twinkle effect
+            // Pulse effect
+            star.pulsePhase += star.pulseSpeed;
             star.twinklePhase += star.twinkleSpeed;
-            const twinkleFactor = 0.7 + 0.3 * Math.sin(star.twinklePhase);
-            const currentRadius = star.radius * twinkleFactor;
+            star.orbitPhase += star.orbitSpeed;
             
-            ctx.beginPath();
+            // Dynamic size with twinkling
+            const pulse = Math.sin(star.pulsePhase) * 0.3 + 0.7;
+            const twinkle = Math.sin(star.twinklePhase) * 0.5 + 0.5;
+            star.size = star.baseSize * pulse * (0.5 + twinkle * 0.5);
             
-            // Add glow effect (only for larger stars to improve performance)
-            if (currentRadius > 1.2) {
-                ctx.shadowBlur = currentRadius * 2;
-                ctx.shadowColor = star.color;
-            }
+            // Orbital movement around original position
+            const orbitX = Math.cos(star.orbitPhase) * star.orbitRadius * 0.3;
+            const orbitY = Math.sin(star.orbitPhase) * star.orbitRadius * 0.3;
             
-            ctx.arc(star.x, star.y, currentRadius, 0, Math.PI * 2);
-            ctx.fillStyle = star.color;
-            ctx.fill();
-            
-            // Reset shadow for next drawing
-            if (currentRadius > 1.2) {
-                ctx.shadowBlur = 0;
-            }
-        });
-        
-        // Draw click effects
-        clickEffects.forEach((effect, index) => {
-            ctx.beginPath();
-            const gradient = ctx.createRadialGradient(
-                effect.x, effect.y, 0, 
-                effect.x, effect.y, effect.radius
-            );
-            gradient.addColorStop(0, `rgba(${effect.color.r}, ${effect.color.g}, ${effect.color.b}, ${effect.alpha})`);
-            gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
-            
-            ctx.fillStyle = gradient;
-            ctx.arc(effect.x, effect.y, effect.radius, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.closePath();
-            
-            // Update effect
-            effect.radius += effect.speed;
-            effect.alpha -= 0.015;
-            
-            // Remove faded effects
-            if (effect.alpha <= 0) {
-                clickEffects.splice(index, 1);
-            }
-        });
-    }
-    
-    // Update star positions with improved physics
-    function updateStars() {
-        stars.forEach(star => {
-            // Apply velocity with improved sensitivity
-            star.x += star.vx;
-            star.y += star.vy;
-            
-            // Decrease direction change timer
-            star.directionChangeTimer -= 1;
-            
-            // Randomly change direction when timer reaches zero
-            if (star.directionChangeTimer <= 0) {
-                star.vx = (Math.random() - 0.5) * 1.0; // New random velocity - increased
-                star.vy = (Math.random() - 0.5) * 1.0; // increased
-                star.directionChangeTimer = Math.random() * 150 + 50; // Reset timer
-            }
-            
-            // Apply more aggressive acceleration for more dynamic movement - increased
+            // Dynamic velocity changes
             star.vx += (Math.random() - 0.5) * 0.02;
             star.vy += (Math.random() - 0.5) * 0.02;
             
-            // Limit max velocity for stability, but higher than before
-            const maxVel = 1.2; // increased from 0.8
-            star.vx = Math.max(-maxVel, Math.min(maxVel, star.vx));
-            star.vy = Math.max(-maxVel, Math.min(maxVel, star.vy));
+            // Apply velocity with damping
+            star.x += star.vx + orbitX * 0.01;
+            star.y += star.vy + orbitY * 0.01;
+            star.vx *= 0.98;
+            star.vy *= 0.98;
             
-            // Very slight return to original position (just enough to keep stars in view)
-            star.x += (star.originalX - star.x) * star.returnSpeed * 0.1;
-            star.y += (star.originalY - star.y) * star.returnSpeed * 0.1;
-            
-            // Bounce off canvas edges with damping
-            if (star.x < star.radius) {
-                star.x = star.radius;
-                star.vx *= -0.8;
-            } else if (star.x > starsCanvas.width - star.radius) {
-                star.x = starsCanvas.width - star.radius;
-                star.vx *= -0.8;
-            }
-            
-            if (star.y < star.radius) {
-                star.y = star.radius;
-                star.vy *= -0.8;
-            } else if (star.y > starsCanvas.height - star.radius) {
-                star.y = starsCanvas.height - star.radius;
-                star.vy *= -0.8;
-            }
-        });
-    }
-    
-    // Handle click or tap with direction change behavior
-    function handleInteraction(x, y) {
-        // Create click effect
-        const colorOptions = [
-            {r: 255, g: 255, b: 255}, // white
-            {r: 200, g: 225, b: 255}, // light blue
-            {r: 100, g: 180, b: 255}  // medium blue
-        ];
-        
-        const color = colorOptions[Math.floor(Math.random() * colorOptions.length)];
-        
-        clickEffects.push({
-            x,
-            y,
-            radius: 2,
-            maxRadius: 100,
-            speed: 5, // Faster expanding effect
-            alpha: 0.7,
-            color
-        });
-        
-        // Change direction of ALL stars on click (not just nearby ones)
-        stars.forEach(star => {
-            // Change direction completely with higher velocity
-            star.vx = (Math.random() - 0.5) * 1.5; // Higher velocity on click (increased)
-            star.vy = (Math.random() - 0.5) * 1.5; // Higher velocity on click (increased)
-            
-            // Reset direction change timer
-            star.directionChangeTimer = Math.random() * 200 + 50;
-            
-            // Additionally apply force from click point for nearby stars
-            const dx = star.x - x;
-            const dy = star.y - y;
+            // Mouse attraction/repulsion
+            const dx = star.x - mouseX;
+            const dy = star.y - mouseY;
             const distance = Math.sqrt(dx * dx + dy * dy);
             
-            if (distance < 200) { // Increased radius of effect
-                const force = (1 - distance / 200) * 4; // Increased force
-                star.vx += (dx / distance) * force;
-                star.vy += (dy / distance) * force;
+            if (distance < 200 && distance > 0) {
+                const force = (1 - distance / 200) * 0.5;
+                // Create swirling effect
+                star.vx += (-dy / distance) * force * 0.3; // Perpendicular force
+                star.vy += (dx / distance) * force * 0.3;
                 
-                // Reset twinkle phase for affected stars
-                star.twinklePhase = Math.random() * Math.PI * 2;
+                // Slight attraction
+                star.vx -= (dx / distance) * force * 0.1;
+                star.vy -= (dy / distance) * force * 0.1;
             }
-        });
-    }
-    
-    // Since canvas now has pointer-events: none, we need to listen to clicks on the hero section
-    function handleMouseClick(event) {
-        const rect = heroSection.getBoundingClientRect();
-        const mouseX = event.clientX - rect.left;
-        const mouseY = event.clientY - rect.top;
-        
-        handleInteraction(mouseX, mouseY);
-    }
-    
-    // Handle touch on mobile
-    function handleTouchStart(event) {
-        if (event.touches.length === 1) {
-            const touch = event.touches[0];
-            const rect = heroSection.getBoundingClientRect();
-            const touchX = touch.clientX - rect.left;
-            const touchY = touch.clientY - rect.top;
             
-            handleInteraction(touchX, touchY);
-        }
+            // Bounce off edges with some randomness
+            if (star.x < 0 || star.x > canvas.width) {
+                star.vx *= -0.8;
+                star.vx += (Math.random() - 0.5) * 0.5;
+            }
+            if (star.y < 0 || star.y > canvas.height) {
+                star.vy *= -0.8;
+                star.vy += (Math.random() - 0.5) * 0.5;
+            }
+            
+            // Keep in bounds
+            star.x = Math.max(5, Math.min(canvas.width - 5, star.x));
+            star.y = Math.max(5, Math.min(canvas.height - 5, star.y));
+        });
+        
+        updateConstellations();
+        updateBlasts();
     }
     
-    // Handle mouse move for subtle interaction
-    function handleMouseMove(event) {
-        const rect = heroSection.getBoundingClientRect();
-        mousePosition = {
-            x: event.clientX - rect.left,
-            y: event.clientY - rect.top
-        };
+    // Draw everything
+    function draw() {
+        // Clear canvas
+        ctx.fillStyle = 'rgba(13, 26, 61, 1)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // More noticeable effect on nearby stars
-        stars.forEach(star => {
-            const dx = star.x - mousePosition.x;
-            const dy = star.y - mousePosition.y;
+        // Debug: Draw a test circle to make sure canvas is working
+        if (stars.length === 0) {
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+            ctx.beginPath();
+            ctx.arc(100, 100, 50, 0, Math.PI * 2);
+            ctx.fill();
+            console.log('No stars to draw!');
+        }
+        
+        // Draw constellation lines
+        constellationLines.forEach(line => {
+            const gradient = ctx.createLinearGradient(line.x1, line.y1, line.x2, line.y2);
+            gradient.addColorStop(0, `rgba(100, 150, 255, ${line.opacity})`);
+            gradient.addColorStop(0.5, `rgba(150, 200, 255, ${line.opacity})`);
+            gradient.addColorStop(1, `rgba(100, 150, 255, ${line.opacity})`);
+            
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(line.x1, line.y1);
+            ctx.lineTo(line.x2, line.y2);
+            ctx.stroke();
+        });
+        
+        // Draw stars
+        stars.forEach((star, index) => {
+            const pulse = Math.sin(star.pulsePhase) * 0.3 + 0.7;
+            const twinkle = Math.sin(star.twinklePhase) * 0.5 + 0.5;
+            const brightness = star.brightness * pulse * twinkle;
+            
+            // Check if star is near mouse
+            const dx = star.x - mouseX;
+            const dy = star.y - mouseY;
             const distance = Math.sqrt(dx * dx + dy * dy);
+            const isNearMouse = distance < 200;
             
-            if (distance < 80) { // Increased radius of effect
-                const force = (1 - distance / 80) * 0.08; // Increased force
-                star.vx += (dx / distance) * force;
-                star.vy += (dy / distance) * force;
+            // Multi-layered glow effect
+            if (isNearMouse || star.size > 3) {
+                const glowIntensity = isNearMouse ? (1 - distance / 200) : 0.3;
+                const glowSize = star.size * (3 + glowIntensity * 3);
+                
+                // Outer glow
+                const gradient1 = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, glowSize);
+                gradient1.addColorStop(0, `rgba(150, 200, 255, ${brightness * glowIntensity * 0.3})`);
+                gradient1.addColorStop(0.4, `rgba(100, 150, 255, ${brightness * glowIntensity * 0.2})`);
+                gradient1.addColorStop(1, 'rgba(50, 100, 255, 0)');
+                
+                ctx.fillStyle = gradient1;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, glowSize, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Inner glow
+                const gradient2 = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, star.size * 2);
+                gradient2.addColorStop(0, `rgba(255, 255, 255, ${brightness})`);
+                gradient2.addColorStop(0.5, `rgba(200, 220, 255, ${brightness * 0.8})`);
+                gradient2.addColorStop(1, `rgba(150, 200, 255, ${brightness * 0.3})`);
+                
+                ctx.fillStyle = gradient2;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size * 2, 0, Math.PI * 2);
+                ctx.fill();
             }
+            
+            // Draw star core with color variation
+            const colorVariation = (index % 3);
+            let coreColor;
+            if (colorVariation === 0) {
+                coreColor = `rgba(255, 255, 255, ${brightness})`; // Pure white
+            } else if (colorVariation === 1) {
+                coreColor = `rgba(255, 240, 200, ${brightness})`; // Warm white
+            } else {
+                coreColor = `rgba(200, 220, 255, ${brightness})`; // Cool blue-white
+            }
+            
+            ctx.fillStyle = coreColor;
+            ctx.beginPath();
+            ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Enhanced twinkle effect for all stars
+            if (twinkle > 0.7) {
+                ctx.save();
+                ctx.translate(star.x, star.y);
+                ctx.rotate(star.twinklePhase);
+                
+                ctx.strokeStyle = `rgba(255, 255, 255, ${brightness * twinkle * 0.5})`;
+                ctx.lineWidth = 0.5;
+                const spikeLength = star.size * (4 + twinkle * 2);
+                
+                // Four-pointed star spikes
+                ctx.beginPath();
+                ctx.moveTo(-spikeLength, 0);
+                ctx.lineTo(spikeLength, 0);
+                ctx.moveTo(0, -spikeLength);
+                ctx.lineTo(0, spikeLength);
+                
+                // Diagonal spikes for extra sparkle
+                const diagLength = spikeLength * 0.7;
+                ctx.moveTo(-diagLength, -diagLength);
+                ctx.lineTo(diagLength, diagLength);
+                ctx.moveTo(-diagLength, diagLength);
+                ctx.lineTo(diagLength, -diagLength);
+                
+                ctx.stroke();
+                ctx.restore();
+            }
+        });
+        
+        // Draw blast effects on top
+        drawBlasts();
+    }
+    
+    // Update blast waves
+    function updateBlasts() {
+        blastWaves = blastWaves.filter(wave => {
+            wave.radius += wave.speed;
+            wave.opacity -= 0.02;
+            wave.speed *= 0.98;
+            return wave.opacity > 0;
+        });
+        
+        particles = particles.filter(particle => {
+            particle.x += particle.vx;
+            particle.y += particle.vy;
+            particle.vx *= 0.95;
+            particle.vy *= 0.95;
+            particle.vy += 0.3; // gravity
+            particle.life -= 0.02;
+            particle.size *= 0.98;
+            return particle.life > 0;
         });
     }
     
-    // Main animation loop with requestAnimationFrame
-    let lastTime = 0;
-    const fps = 60;
-    const interval = 1000 / fps;
-    
-    function animate(currentTime) {
-        const deltaTime = currentTime - lastTime;
+    // Draw blast effects
+    function drawBlasts() {
+        // Draw particles
+        particles.forEach(particle => {
+            ctx.fillStyle = `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${particle.life})`;
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+            ctx.fill();
+        });
         
-        if (deltaTime > interval) {
-            lastTime = currentTime - (deltaTime % interval);
-            drawStars();
-            updateStars();
-        }
-        
-        requestAnimationFrame(animate);
+        // Draw shockwaves
+        blastWaves.forEach(wave => {
+            const gradient = ctx.createRadialGradient(wave.x, wave.y, wave.radius * 0.7, wave.x, wave.y, wave.radius);
+            gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+            gradient.addColorStop(0.7, `rgba(${wave.color.r}, ${wave.color.g}, ${wave.color.b}, ${wave.opacity * 0.3})`);
+            gradient.addColorStop(1, `rgba(${wave.color.r}, ${wave.color.g}, ${wave.color.b}, ${wave.opacity})`);
+            
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(wave.x, wave.y, wave.radius, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // Inner glow
+            ctx.strokeStyle = `rgba(255, 255, 255, ${wave.opacity * 0.5})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(wave.x, wave.y, wave.radius * 0.9, 0, Math.PI * 2);
+            ctx.stroke();
+        });
     }
     
-    // Set up event listeners
-    window.addEventListener('resize', resizeCanvas);
-    // Changed from starsCanvas to heroSection for event listeners since canvas has pointer-events: none
-    heroSection.addEventListener('click', handleMouseClick);
-    heroSection.addEventListener('mousemove', handleMouseMove);
-    heroSection.addEventListener('touchstart', handleTouchStart, { passive: true });
+    // Animation loop
+    function animate() {
+        update();
+        draw();
+        animationId = requestAnimationFrame(animate);
+    }
+    
+    // Mouse move handler
+    function handleMouseMove(e) {
+        const rect = canvas.getBoundingClientRect();
+        mouseX = e.clientX - rect.left;
+        mouseY = e.clientY - rect.top;
+    }
+    
+    // Mouse click handler
+    function handleClick(e) {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        createBlast(x, y);
+    }
+    
+    // Touch handler for mobile
+    function handleTouch(e) {
+        const rect = canvas.getBoundingClientRect();
+        if (e.touches.length > 0) {
+            mouseX = e.touches[0].clientX - rect.left;
+            mouseY = e.touches[0].clientY - rect.top;
+        }
+    }
+    
+    // Touch start for blast on mobile
+    function handleTouchStart(e) {
+        const rect = canvas.getBoundingClientRect();
+        if (e.touches.length > 0) {
+            const x = e.touches[0].clientX - rect.left;
+            const y = e.touches[0].clientY - rect.top;
+            createBlast(x, y);
+        }
+    }
+    
+    // Mouse leave handler
+    function handleMouseLeave() {
+        mouseX = -200;
+        mouseY = -200;
+    }
     
     // Initialize
     resizeCanvas();
-    requestAnimationFrame(animate);
+    animate();
+    
+    // Event listeners
+    window.addEventListener('resize', resizeCanvas);
+    heroSection.addEventListener('mousemove', handleMouseMove);
+    heroSection.addEventListener('click', (e) => {
+        // Check if click is not on a button or link
+        if (!e.target.closest('a, button')) {
+            handleClick(e);
+        }
+    });
+    heroSection.addEventListener('touchmove', handleTouch);
+    heroSection.addEventListener('touchstart', (e) => {
+        if (!e.target.closest('a, button')) {
+            handleTouchStart(e);
+        }
+    });
+    heroSection.addEventListener('mouseleave', handleMouseLeave);
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+        cancelAnimationFrame(animationId);
+    });
 });
